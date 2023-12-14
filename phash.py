@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 TO_DIM = 4
 
@@ -11,8 +11,16 @@ if len(sys.argv) <= 1:
 
 for f in sys.argv[1:]:
 
-    # load and convert to grayscale, since we're not interested in color shifts
-    i = Image.open(f).convert('L')
+    # load image, silently ignoring non-image files
+    try:
+        i = Image.open(f)
+    except UnidentifiedImageError:
+        continue
+
+    # convert to grayscale, since we're not interested in color shifts
+    i = i.convert('L')
+
+    # resize
     i = i.resize((TO_DIM,TO_DIM), Image.Resampling.BOX)
 
     # FIXME make bit array and print as bytes (e. g. 4*256/16 would be 4 bytes,
