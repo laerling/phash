@@ -1,8 +1,22 @@
 use std::env::args;
-use std::io::ErrorKind::NotFound;
+use std::io;
 use std::str::from_utf8_unchecked;
 
-fn phash<'hash>(filename: &String) -> std::io::Result<[u8; 16]> {
+use image::DynamicImage;
+use image::error::ImageError;
+use image::io::Reader as ImageReader;
+
+
+fn phash<'hash>(filename: &String) -> io::Result<[u8; 16]> {
+    // open() relies on correct file extension. We might use with_guessed_format later.
+    let image_reader = ImageReader::open(filename)?.with_guessed_format()?;
+    let image: DynamicImage = match image_reader.decode() {
+        Ok(i) => i,
+        Err(ImageError::IoError(e)) => return Err(e),
+        // Return Err so that main can handle it
+        // FIXME wrap ImageError, so that main can unpack and inspect it
+        Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e)),
+    };
     // TODO
     return Ok([b'0'; 16]);
 }
@@ -17,18 +31,27 @@ fn main() {
         let file_phash: [u8; 16] = match phash(&filename) {
             Ok(hash) => hash,
 
-            // Ignore files that are not images
-            // TODO
-
             // Warn about files that could not be found
-            Err(e) if e.kind() == NotFound => {
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
                 eprintln!("File not found: {}", filename);
                 continue;
             },
 
-            // All other errors are unexpected, so panic
-            Err(e) => panic!("Failed creating perceptive hash of file {}: {}",
-                             filename, e),
+            // Ignore files that are not images
+            Err(e) => match e.get_ref() {
+
+                // print warning about non-decodable files
+                //ImageError::Unsupported(_)
+                Some(e_image) => { 
+                    eprintln!("{}: {}", e_image, filename);
+                    continue;
+                },
+
+                // None means any other error.
+                // All other errors are unexpected, so panic.
+                _ => panic!("Failed creating perceptive hash of file {}: {}",
+                            filename, e),
+            },
         };
 
         // print phash
