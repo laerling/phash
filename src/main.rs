@@ -1,16 +1,38 @@
-//use image::io::Reader as ImageReader;
+use std::env::args;
+use std::io::ErrorKind::NotFound;
+use std::str::from_utf8_unchecked;
 
-// FIXME write hash to byte array and move-return reference to it (in Result of course).
-// FIXME probably another (more Image crate specific) Result type makes sense here.
-fn phash(filename: &String) -> std::io::Result<String> {
-    //ImageReader::open(filename)?;
-    return Ok(String::from("[placeholder]"));
+fn phash<'hash>(filename: &String) -> std::io::Result<[u8; 16]> {
+    // TODO
+    return Ok([b'0'; 16]);
 }
 
 fn main() {
-    for filename in std::env::args().skip(1) {
-        let err_msg = format!("Failed creating perceptive hash of file {}", filename);
-        let file_phash = phash(&filename).expect(err_msg.as_str());
-        println!("{} {}", file_phash, filename);
+
+    // Print perceptive hash for each image file.
+    // Skip file name of this executable.
+    for filename in args().skip(1) {
+
+        // get perceptive hash (phash) for file
+        let file_phash: [u8; 16] = match phash(&filename) {
+            Ok(hash) => hash,
+
+            // Ignore files that are not images
+            // TODO
+
+            // Warn about files that could not be found
+            Err(e) if e.kind() == NotFound => {
+                eprintln!("File not found: {}", filename);
+                continue;
+            },
+
+            // All other errors are unexpected, so panic
+            Err(e) => panic!("Failed creating perceptive hash of file {}: {}",
+                             filename, e),
+        };
+
+        // print phash
+        let file_phash_str: &str = unsafe { from_utf8_unchecked(&file_phash[1..16]) };
+        println!("{} {}", file_phash_str, filename);
     }
 }
