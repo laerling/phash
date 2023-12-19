@@ -2,12 +2,11 @@ use std::env::args;
 use std::io;
 use std::str::from_utf8_unchecked;
 
-use image::DynamicImage;
-use image::error::ImageError;
+use image::error::{ImageError,ImageResult};
 use image::io::Reader as ImageReader;
 
 
-fn phash<'hash>(filename: &String) -> io::Result<[u8; 16]> {
+fn phash<'hash>(filename: &String) -> ImageResult<[u8; 16]> {
 
     // open image file
     let image_reader = ImageReader::open(filename)?;
@@ -16,16 +15,8 @@ fn phash<'hash>(filename: &String) -> io::Result<[u8; 16]> {
     let image_reader = image_reader.with_guessed_format()?;
 
     // decode image
-    let image: DynamicImage = match image_reader.decode() {
-        Ok(i) => i,
+    let image = image_reader.decode()?;
 
-        // All IO errors are handled by the callers
-        Err(ImageError::IoError(e)) => return Err(e),
-
-        // Return Err so that main can handle it
-        // FIXME wrap ImageError, so that main can unpack and inspect it
-        Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e)),
-    };
     // TODO
     return Ok([b'0'; 16]);
 }
@@ -40,27 +31,28 @@ fn main() {
         let file_phash: [u8; 16] = match phash(&filename) {
             Ok(phash) => phash,
 
-            // Warn about files that could not be found
-            Err(e) if e.kind() == io::ErrorKind::NotFound => {
-                eprintln!("File not found: {}", filename);
-                continue;
-            },
+            // General IO error
+            Err(ImageError::IoError(e)) => match e.kind() {
 
-            // Ignore files that are not images
-            Err(e) => match e.get_ref() {
-
-                // print warning about non-decodable files
-                //ImageError::Unsupported(_)
-                Some(e_image) => { 
-                    eprintln!("{}: {}", e_image, filename);
+                // Warn about missing files
+                io::ErrorKind::NotFound => {
+                    eprintln!("{}: {}", e, filename);
                     continue;
                 },
 
-                // None means any other error.
-                // All other errors are unexpected, so panic.
-                _ => panic!("Failed creating perceptive hash of file {}: {}",
-                            filename, e),
+                // All other IO errors are unexpected
+                _ => panic!("IO error when opening file {}: {}", filename, e),
+            }
+
+            // Unsupported image format
+            Err(ImageError::Unsupported(e)) => {
+                eprintln!("{}: {}", e, filename);
+                continue;
             },
+
+            // All other image errors are unexpected
+            Err(e) => panic!("Error decoding file {}: {}", filename, e),
+
         };
 
         // print phash
