@@ -1,6 +1,15 @@
-# Primitive Perceptual Hash
+# Crop-invariant Perceptual Hash
 
-This is a very primitive perceptual hash implementation that satisfies my needs.
-It simply converts each given image to grayscale and scales it to 4x4 pixels, then outputs each pixel value divided by 16 in hexadecimal notation, i.e. 16 hexadecimal digits.
-This is stable enough for my purposes. But as you can see by running `./phash.py ./test/*`, it is not 100% reliable.
-I for one have no problem with a small number of false positives, since I may want to deduplicate similar images anyway, even if they're not the exact same image.
+My goal is to create a crop-invariant perceptual hash function.
+Of course crop-invariant perceptual hashes will not be the same between two pictures when one is cropped. However, similarity should be detectable!
+
+
+# Idea
+
+The idea is to treat an image as a superposition of wave functions (basically a fourrier transform), but in a way that allows finding out whether one wave function superposition is part of another
+- without the hashes being different lengths, if possible (though image size correlation might be acceptable in a PoC)
+
+
+# Previous work
+
+Big TODO! I still have to research whether there is any previous work on crop invariance in perceptual hash algorithms.
