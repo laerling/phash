@@ -8,11 +8,20 @@ use image::io::Reader as ImageReader;
 
 
 fn phash<'hash>(filename: &String) -> io::Result<[u8; 16]> {
-    // open() relies on correct file extension. We might use with_guessed_format later.
-    let image_reader = ImageReader::open(filename)?.with_guessed_format()?;
+
+    // open image file
+    let image_reader = ImageReader::open(filename)?;
+
+    // file extensions aren't always correct
+    let image_reader = image_reader.with_guessed_format()?;
+
+    // decode image
     let image: DynamicImage = match image_reader.decode() {
         Ok(i) => i,
+
+        // All IO errors are handled by the callers
         Err(ImageError::IoError(e)) => return Err(e),
+
         // Return Err so that main can handle it
         // FIXME wrap ImageError, so that main can unpack and inspect it
         Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e)),
@@ -29,7 +38,7 @@ fn main() {
 
         // get perceptive hash (phash) for file
         let file_phash: [u8; 16] = match phash(&filename) {
-            Ok(hash) => hash,
+            Ok(phash) => phash,
 
             // Warn about files that could not be found
             Err(e) if e.kind() == io::ErrorKind::NotFound => {
