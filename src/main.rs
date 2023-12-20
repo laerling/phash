@@ -3,6 +3,7 @@ use std::io;
 use std::str::from_utf8_unchecked;
 
 use image::error::{ImageError,ImageResult};
+use image::imageops::FilterType;
 use image::io::Reader as ImageReader;
 
 
@@ -17,8 +18,27 @@ fn phash<'hash>(filename: &String) -> ImageResult<[u8; 16]> {
     // decode image
     let image = image_reader.decode()?;
 
-    // TODO
-    return Ok([b'0'; 16]);
+    // convert to grayscale, since we're not interested in color shifts
+    let image = image.grayscale();
+
+    // resize
+    // TODO: Which filter gives best result?
+    //       Triangle (fastest), CatmullRom, Gaussian, Lanczos3
+    let image = image.resize_exact(4, 4, FilterType::Triangle);
+
+    // get pixels
+    let image_bytes: Vec<u8> = image.into_bytes();
+    assert_eq!(image_bytes.len(), 16);
+
+    // downsample pixels, convert to hex, write to phash buffer
+    let mut phash: [u8; 16] = [b'0'; 16];
+    for i in 0..16 {
+        let ds: u8 = image_bytes[i] / 16;
+        assert!(ds < 16, "Somehow dividing a byte by 16 turned out bigger than 0xf");
+        phash[i] = String::from("0123456789abcdef").as_bytes()[usize::from(ds)];
+    }
+
+    Ok(phash)
 }
 
 fn main() {
