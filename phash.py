@@ -21,7 +21,10 @@ for f in sys.argv[1:]:
     i = i.convert('L')
 
     # resize
-    i = i.resize((TO_DIM,TO_DIM), Image.Resampling.BOX)
+    # TODO: Which filter gives best result?
+    #       BOX, BILINEA, HAMMING, BICUBIC, LANCZOS
+    resampling_filter = Image.Resampling.LANCZOS
+    i = i.resize((TO_DIM,TO_DIM), resampling_filter)
 
     # FIXME make bit array and print as bytes (e. g. 4*256/16 would be 4 bytes,
     # but 4*256/8 would be 5)

@@ -24,7 +24,7 @@ fn phash<'hash>(filename: &String) -> ImageResult<[u8; 16]> {
     // resize
     // TODO: Which filter gives best result?
     //       Triangle (fastest), CatmullRom, Gaussian, Lanczos3
-    let image = image.resize_exact(4, 4, FilterType::Triangle);
+    let image = image.resize_exact(4, 4, FilterType::Lanczos3);
 
     // get pixels
     let image_bytes: Vec<u8> = image.into_bytes();
