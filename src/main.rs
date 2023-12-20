@@ -34,8 +34,8 @@ fn phash<'hash>(filename: &String) -> ImageResult<[u8; 16]> {
     let mut phash: [u8; 16] = [b'0'; 16];
     for i in 0..16 {
         let ds: u8 = image_bytes[i] / 16;
-        assert!(ds < 16, "Somehow dividing a byte by 16 turned out bigger than 0xf");
-        phash[i] = String::from("0123456789abcdef").as_bytes()[usize::from(ds)];
+        let err_msg = "Somehow dividing a byte by 16 turned out bigger than 0xf";
+        phash[i] = "0123456789abcdef".bytes().nth(usize::from(ds)).expect(err_msg);
     }
 
     Ok(phash)
