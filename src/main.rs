@@ -76,7 +76,8 @@ fn main() {
         };
 
         // print phash
-        let file_phash_str: &str = unsafe { from_utf8_unchecked(&file_phash[1..16]) };
+        // We can use unsafe from_utf8_unchecked because we know that it's only [0-9a-f]
+        let file_phash_str: &str = unsafe { from_utf8_unchecked(&file_phash[0..16]) };
         println!("{} {}", file_phash_str, filename);
     }
 }
