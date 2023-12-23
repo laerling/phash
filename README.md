@@ -8,7 +8,7 @@ I for one have no problem with a small number of false positives, since I may wa
 
 # refs
 
-- [https://crypto.stackexchange.com/questions/93423/how-unique-is-a-neuralhash](How unique is a neural hash?)
-- [https://duckduckgo.com/?q=open+source+perceptual+hashing&t=ffab&ia=web](open source perceptual hashing (DuckDuckGo search))
-- [https://github.com/topics/perceptual-hashing](Perceptual Hashing - GitHub Topic)
-- [https://en.wikipedia.org/wiki/Perceptual_hashing](Perceptual Hashing - Wikipedia)
+- [How unique is a neural hash?](https://crypto.stackexchange.com/questions/93423/how-unique-is-a-neuralhash)
+- [open source perceptual hashing (DuckDuckGo search)](https://duckduckgo.com/?q=open+source+perceptual+hashing&t=ffab&ia=web)
+- [Perceptual Hashing - GitHub Topic](https://github.com/topics/perceptual-hashing)
+- [Perceptual Hashing - Wikipedia](https://en.wikipedia.org/wiki/Perceptual_hashing)
