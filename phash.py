@@ -17,6 +17,10 @@ for f in sys.argv[1:]:
     except UnidentifiedImageError:
         continue
 
+    # TODO: Convert alpha to white instead of black, since that's how I want alpha to be displayed
+
+    # TODO: Increase contrast to have a unified dynamic range (or whatever it's called) across all images and to distinguish between different details in images with low contrast
+
     # convert to grayscale, since we're not interested in color shifts
     i = i.convert('L')
 
