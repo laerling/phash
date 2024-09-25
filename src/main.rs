@@ -28,7 +28,7 @@ fn phash<'hash>(filename: &String) -> ImageResult<[u8; 16]> {
 
     // get pixels
     let image_bytes: Vec<u8> = image.into_bytes();
-    assert_eq!(image_bytes.len(), 16);
+    assert_eq!(image_bytes.len(), 16, "(image: {})", filename);
 
     // downsample pixels, convert to hex, write to phash buffer
     let mut phash: [u8; 16] = [b'0'; 16];
